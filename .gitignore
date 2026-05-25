@@ -5,7 +5,6 @@
 .env.prod
 .env.dev
 .env.uat
-.env.ci
 .phpactor.json
 .phpunit.result.cache
 /.fleet
