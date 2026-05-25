@@ -1,0 +1,10 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - app
+        - tests
+    ignoreErrors:
+        - '#PHPDoc tag @var#'
