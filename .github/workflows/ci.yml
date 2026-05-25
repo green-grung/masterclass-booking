@@ -1,0 +1,117 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ dev, uat, main ]
+  pull_request:
+    branches: [ dev, uat, main ]
+
+jobs:
+  tests:
+    name: Tests & Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: bcmath, dom, curl, libxml, mbstring, zip, sqlite, pdo_sqlite
+      - run: composer install --no-progress --no-suggest
+      - run: cp .env.ci .env
+      - run: php artisan key:generate --force
+      - run: php artisan migrate --force
+      - name: Run tests with coverage
+        run: |
+          ./vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml
+      - name: Check coverage >= 50%
+        run: |
+          COVERAGE=$(grep -Po 'Lines:\s+\K\d+\.\d+' coverage.xml || echo "0")
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below 50%"
+            exit 1
+          fi
+          echo "Coverage $COVERAGE% is OK"
+
+  static-analysis:
+    name: PHPStan (Larastan)
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - run: composer install --no-progress --no-suggest
+      - run: cp .env.ci .env
+      - run: php artisan key:generate --force
+      - run: ./vendor/bin/phpstan analyse --error-format=github --level=5 app tests
+
+  lint:
+    name: Laravel Pint (PSR-12)
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - run: composer install --no-progress --no-suggest
+      - name: Check code style
+        run: ./vendor/bin/pint --test --preset=psr12
+
+  deploy-simulation:
+    name: Deploy Simulation
+    runs-on: ubuntu-latest
+    needs: [tests, static-analysis, lint]
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set environment file based on branch
+        run: |
+          BRANCH=${GITHUB_REF#refs/heads/}
+          case "$BRANCH" in
+            dev)
+              cp .env.dev .env
+              ENV_NAME="dev"
+              ;;
+            uat)
+              cp .env.uat .env
+              ENV_NAME="uat"
+              ;;
+            main)
+              cp .env.prod .env
+              ENV_NAME="prod"
+              ;;
+            *)
+              echo "Unknown branch: $BRANCH, skipping deploy"
+              exit 0
+              ;;
+          esac
+          echo "Deploying to $ENV_NAME with .env.$ENV_NAME"
+      - name: Manual approval for main
+        if: github.ref == 'refs/heads/main'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setFailed('This step requires manual approval. Please configure GitHub Environments with required reviewers.')
+
+  # Опционально: уведомление по email (требуется настроить secrets)
+  notify:
+    name: Notify Maintainers
+    runs-on: ubuntu-latest
+    needs: deploy-simulation
+    if: always() && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/uat' || github.ref == 'refs/heads/main')
+    steps:
+      - name: Send email on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{secrets.MAIL_USERNAME}}
+          password: ${{secrets.MAIL_PASSWORD}}
+          subject: "CI/CD Pipeline failed for ${{github.ref_name}}"
+          to: maintainers@example.com
+          from: GitHub Actions
+          body: |
+            Pipeline failed at ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}
