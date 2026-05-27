@@ -5,9 +5,6 @@ parameters:
     level: 5
     paths:
         - app
+    reportUnmatchedIgnoredErrors: false
     excludePaths:
         - app/Http/Controllers/Auth/VerifyEmailController.php
-    reportUnmatchedIgnoredErrors: false
-    ignoreErrors:
-        - '#PHPDoc tag @var#'
-        - '#Instanceof between Carbon\\Carbon and DateTimeInterface will always evaluate to true#'
