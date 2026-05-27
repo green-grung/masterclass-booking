@@ -33,14 +33,6 @@ jobs:
             exit 1
           fi
           echo "Coverage $COVERAGE% is OK"
-      - name: Check coverage >= 50%
-        run: |
-          COVERAGE=$(grep -Po 'Lines:\s+\K\d+\.\d+' coverage.xml || echo "0")
-          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
-            echo "Coverage $COVERAGE% is below 50%"
-            exit 1
-          fi
-          echo "Coverage $COVERAGE% is OK"
 
   static-analysis:
     name: PHPStan (Larastan)
