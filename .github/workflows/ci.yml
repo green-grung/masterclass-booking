@@ -33,8 +33,6 @@ jobs:
             exit 1
           fi
           echo "Coverage $COVERAGE% is OK"
-        run: |
-          ./vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml
       - name: Check coverage >= 50%
         run: |
           COVERAGE=$(grep -Po 'Lines:\s+\K\d+\.\d+' coverage.xml || echo "0")
