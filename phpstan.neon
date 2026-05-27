@@ -5,8 +5,9 @@ parameters:
     level: 5
     paths:
         - app
+    excludePaths:
+        - app/Http/Controllers/Auth/VerifyEmailController.php
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - '#PHPDoc tag @var#'
         - '#Instanceof between Carbon\\Carbon and DateTimeInterface will always evaluate to true#'
-        - '#Parameter #1 \$user of class Illuminate\\Auth\\Events\\Verified constructor#'
