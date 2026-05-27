@@ -40,7 +40,7 @@ class MasterClassController extends Controller
 
         // Проверка занятости слота у этого ведущего
         $exists = MasterClass::where('master_id', Auth::id())
-            ->whereDate('date', $validated['date'])   // <-- Используем whereDate
+            ->whereDate('date', $validated['date'])
             ->where('time_slot', $validated['time_slot'])
             ->exists();
 
@@ -116,12 +116,8 @@ class MasterClassController extends Controller
 
         $occupiedSlots = [];
         foreach ($occupied as $oc) {
-            $dateKey = $oc->date instanceof \DateTimeInterface
-                ? $oc->date->format('Y-m-d')
-                : (string) $oc->date;
-            $occupiedSlots[$dateKey][] = $oc->time_slot;
+            $occupiedSlots[$oc->date->format('Y-m-d')][] = $oc->time_slot;
         }
-
         return $occupiedSlots;
     }
 

@@ -5,6 +5,7 @@ parameters:
     level: 5
     paths:
         - app
-        - tests
     ignoreErrors:
         - '#PHPDoc tag @var#'
+        - '#Instanceof between Carbon\\Carbon and DateTimeInterface will always evaluate to true#'
+        - '#Parameter #1 \$user of class Illuminate\\Auth\\Events\\Verified constructor expects Illuminate\\Contracts\\Auth\\MustVerifyEmail, App\\Models\\User|null given#'
