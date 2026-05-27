@@ -113,7 +113,7 @@ class MasterClassController extends Controller
             $query->where('id', '!=', $ignoreId);
         }
         $occupied = $query->get(['date', 'time_slot']);
-
+  
         $occupiedSlots = [];
         foreach ($occupied as $oc) {
             $occupiedSlots[$oc->date->format('Y-m-d')][] = $oc->time_slot;
