@@ -59,7 +59,7 @@ jobs:
           php-version: '8.2'
       - run: composer install --no-progress --no-suggest
       - name: Check code style
-        run: ./vendor/bin/pint --test --preset=psr12 --exclude database/migrations
+        run: ./vendor/bin/pint --test
 
   deploy-simulation:
     name: Deploy Simulation
