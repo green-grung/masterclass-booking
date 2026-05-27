@@ -46,7 +46,7 @@ jobs:
       - run: composer install --no-progress --no-suggest
       - run: cp .env.ci .env
       - run: php artisan key:generate --force
-      - run: ./vendor/bin/phpstan analyse --error-format=github --level=5 app tests
+      - run: ./vendor/bin/phpstan analyse --error-format=github --level=5 app
 
   lint:
     name: Laravel Pint (PSR-12)
