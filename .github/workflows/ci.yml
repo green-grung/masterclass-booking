@@ -18,13 +18,6 @@ jobs:
           extensions: bcmath, dom, curl, libxml, mbstring, zip, sqlite, pdo_sqlite
       - name: Install PHP dependencies
         run: composer install --no-progress --no-suggest
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Install NPM dependencies
-        run: npm install
-      - name: Build Vite assets
-        run: npm run build
       - name: Prepare environment
         run: |
           cp .env.ci .env
@@ -100,10 +93,9 @@ jobs:
           echo "Deploying to $ENV_NAME with .env.$ENV_NAME"
       - name: Manual approval for main
         if: github.ref == 'refs/heads/main'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.setFailed('This step requires manual approval. Configure GitHub Environments with required reviewers.')
+        run: |
+          echo "Manual approval required for main branch deployment"
+          exit 1
 
   notify:
     name: Notify Maintainers
