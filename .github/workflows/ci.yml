@@ -65,13 +65,13 @@ jobs:
     name: Deploy Simulation
     runs-on: ubuntu-latest
     needs: [tests, static-analysis, lint]
-    if: success()
+    if: success() && (github.ref_name == 'dev' || github.ref_name == 'uat' || github.ref_name == 'main')
+    environment: ${{ github.ref_name == 'main' && 'production' || '' }}
     steps:
       - uses: actions/checkout@v4
       - name: Set environment file based on branch
         run: |
-          BRANCH=${GITHUB_REF#refs/heads/}
-          case "$BRANCH" in
+          case "${{ github.ref_name }}" in
             dev)
               cp .env.dev .env
               ENV_NAME="dev"
@@ -84,17 +84,8 @@ jobs:
               cp .env.prod .env
               ENV_NAME="prod"
               ;;
-            *)
-              echo "Unknown branch: $BRANCH, skipping deploy"
-              exit 0
-              ;;
           esac
           echo "Deploying to $ENV_NAME with .env.$ENV_NAME"
-      - name: Manual approval for main
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "Manual approval required for main branch deployment"
-          exit 1
 
   notify:
     name: Notify Maintainers
