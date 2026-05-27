@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class CabinetController extends Controller
 {
@@ -13,7 +13,7 @@ class CabinetController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        if (!$user->isMaster()) {
+        if (! $user->isMaster()) {
             abort(403);
         }
 

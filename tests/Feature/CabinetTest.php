@@ -26,7 +26,7 @@ class CabinetTest extends TestCase
         $this->assertInstanceOf(User::class, $user);
         $this->actingAs($user);
         $response = $this->get(route('cabinet'));
-        $response->assertRedirect(route('home'));;
+        $response->assertRedirect(route('home'));
     }
 
     public function test_master_can_access_cabinet(): void

@@ -121,6 +121,7 @@ class MasterClassController extends Controller
                 : (string) $oc->date;
             $occupiedSlots[$dateKey][] = $oc->time_slot;
         }
+
         return $occupiedSlots;
     }
 

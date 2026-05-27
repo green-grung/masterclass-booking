@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MasterClass extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'craft_id', 'master_id', 'title', 'description', 
-        'date', 'time_slot', 'max_participants', 'price'
+        'craft_id', 'master_id', 'title', 'description',
+        'date', 'time_slot', 'max_participants', 'price',
     ];
 
     protected $casts = [
@@ -41,6 +41,7 @@ class MasterClass extends Model
     public function availablePlaces(): int
     {
         $booked = $this->registrations()->where('status', 'confirmed')->count();
+
         return max(0, $this->max_participants - $booked);
     }
 

@@ -15,6 +15,7 @@ class RegistrationTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private MasterClass $masterClass;
 
     protected function setUp(): void

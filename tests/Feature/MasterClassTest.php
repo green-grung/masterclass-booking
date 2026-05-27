@@ -15,6 +15,7 @@ class MasterClassTest extends TestCase
     use RefreshDatabase;
 
     private User $master;
+
     private Craft $craft;
 
     protected function setUp(): void
@@ -42,37 +43,36 @@ class MasterClassTest extends TestCase
         $this->assertDatabaseHas('master_classes', ['title' => 'Test Class']);
     }
 
+    public function test_master_cannot_create_conflicting_slot(): void
+    {
+        $this->actingAs($this->master);
+        $date = now()->addDay()->toDateString();
 
-   public function test_master_cannot_create_conflicting_slot(): void
-{
-    $this->actingAs($this->master);
-    $date = now()->addDay()->toDateString();
-
-    $existing = MasterClass::create([
-        'craft_id' => $this->craft->id,
-        'master_id' => $this->master->id,
-        'title' => 'Existing',
-        'description' => 'Desc',
-        'date' => $date,
-        'time_slot' => '9-11',
-        'max_participants' => 5,
-        'price' => 100,
-    ]);
-
-    $this->assertDatabaseHas('master_classes', ['id' => $existing->id]);
-
-    $response = $this->from(route('master-class.create'))
-        ->post('/master-class', [
+        $existing = MasterClass::create([
             'craft_id' => $this->craft->id,
-            'title' => 'Conflict',
+            'master_id' => $this->master->id,
+            'title' => 'Existing',
             'description' => 'Desc',
             'date' => $date,
             'time_slot' => '9-11',
-            'max_participants' => 10,
-            'price' => 500,
+            'max_participants' => 5,
+            'price' => 100,
         ]);
 
-    $response->dumpSession(); // посмотреть, есть ли ошибки
-    $response->assertSessionHasErrors('time_slot');
-}
+        $this->assertDatabaseHas('master_classes', ['id' => $existing->id]);
+
+        $response = $this->from(route('master-class.create'))
+            ->post('/master-class', [
+                'craft_id' => $this->craft->id,
+                'title' => 'Conflict',
+                'description' => 'Desc',
+                'date' => $date,
+                'time_slot' => '9-11',
+                'max_participants' => 10,
+                'price' => 500,
+            ]);
+
+        $response->dumpSession(); // посмотреть, есть ли ошибки
+        $response->assertSessionHasErrors('time_slot');
+    }
 }

@@ -15,6 +15,7 @@ class MasterClassControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $master;
+
     private Craft $craft;
 
     protected function setUp(): void
